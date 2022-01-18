@@ -4,6 +4,7 @@ namespace App\DataFixtures;
 
 use App\Entity\Base;
 use App\Entity\Category;
+use App\Entity\History;
 use App\Entity\Person;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -26,6 +27,23 @@ class AppFixtures extends Fixture
         $this->loadUser($manager);
         $this->loadCategory($manager);
         $this->loadBase($manager);
+        $this->loadHistory($manager);
+    }
+
+    private function loadHistory(ObjectManager $manager)
+    {
+        foreach ($this->historyData() as [$userRef, $baseRef, $noticeNumber, $noticeDate, $startDate, $endDate]) {
+            $history = new History();
+            $history->setUser($this->getReference($userRef))
+                ->setBase($this->getReference($baseRef))
+                ->setNoticeDate($noticeDate)
+                ->setNoticeNumber($noticeNumber)
+                ->setStartDate($startDate)
+                ->setEndDate($endDate);
+
+            $manager->persist($history);
+        }
+        $manager->flush();
     }
 
     private function loadBase(ObjectManager $manager)
@@ -78,12 +96,14 @@ class AppFixtures extends Fixture
 
     private function loadUser(ObjectManager $manager)
     {
-        foreach ($this->userData() as [$username, $password, $role, $isDeleted]) {
+        foreach ($this->userData() as [$username, $password, $role, $isDeleted, $personRef, $userRef]) {
             $user = new User();
             $user->setUsername($username)
                 ->setPassword($this->passwordEncoder->encodePassword($user, $password))
                 ->setRoles($role)
-                ->setPerson($this->getReference($username));
+                ->setPerson($this->getReference($personRef));
+
+            $this->setReference($userRef, $user);
 
             if ($isDeleted)
                 $user->setIsDeleted($isDeleted);
@@ -95,10 +115,10 @@ class AppFixtures extends Fixture
 
     private function userData(): array
     {
-        // [$username, $password, $role, $isDeleted]
+        // [$username, $password, $role, $isDeleted, $ref]
         return [
-            ['1062949676', '123456', ['ROLE_USER'], false],
-            ['1063938031', '123456', ['ROLE_USER'], true]
+            ['1062949676', '123456', ['ROLE_USER'], false, 'person_0', 'user_0'],
+            ['1063938031', '123456', ['ROLE_USER'], true, 'person_1', 'user_1']
         ];
     }
 
@@ -106,8 +126,8 @@ class AppFixtures extends Fixture
     {
         // [$gender, $firstName, $lastName, $imageName, $email, $birthDate, $address, $ref]
         return [
-            ['آقا', 'امیر', 'مشفق', 'avatar-s-1.png', 'amir.2814@gmail.com', new \DateTime('1984/12/09'), 'خیابان نور 24', '1062949676'],
-            ['خانم', 'سمیه', 'معتمد', 'avatar-s-2.png', 'somayeh@gmail.com', new \DateTime('1985/11/20'), 'خیابان نور', '1063938031'],
+            ['آقا', 'امیر', 'مشفق', 'avatar-s-1.png', 'amir.2814@gmail.com', new \DateTime('1984/12/09'), 'خیابان نور 24', 'person_0'],
+            ['خانم', 'سمیه', 'معتمد', 'avatar-s-2.png', 'somayeh@gmail.com', new \DateTime('1985/11/20'), 'خیابان نور', 'person_1'],
         ];
     }
 
@@ -162,5 +182,47 @@ class AppFixtures extends Fixture
             ['cat_3', 'مدیر', 'base_26', 'base_33'],
         ];
 
+    }
+
+    private function historyData(): array
+    {
+//        [$userRef, $baseRef, $noticeNumber, $noticeDate, $startDate, $endDate]
+        return [
+            ['user_1', 'base_0', '1000', new \DateTime('-14 years'), new \DateTime('-14 years'), new \DateTime('-13 years')],
+            ['user_1', 'base_1', '1500', new \DateTime('-4 years'), new \DateTime('-4 years'), new \DateTime('-3 years')],
+            ['user_1', 'base_2', '2000', new \DateTime('-2 years'), new \DateTime('-2 years'), new \DateTime('-1 years')],
+            ['user_1', 'base_3', '2500', new \DateTime('-6 years'), new \DateTime('-6 years'), new \DateTime('-5 years')],
+            ['user_1', 'base_4', '3000', new \DateTime('-7 years'), new \DateTime('-7 years'), new \DateTime('-6 years')],
+            ['user_1', 'base_5', '3500', new \DateTime('-2 years'), new \DateTime('-2 years'), new \DateTime('-1 years')],
+            ['user_1', 'base_6', '4000', new \DateTime('-14 years'), new \DateTime('-14 years'), null],
+            ['user_1', 'base_7', '4500', new \DateTime('-10 years'), new \DateTime('-10 years'), new \DateTime('-9 years')],
+            ['user_1', 'base_8', '5000', new \DateTime('-5 years'), new \DateTime('-5 years'), new \DateTime('-4 years')],
+            ['user_1', 'base_9', '5500', new \DateTime('-13 years'), new \DateTime('-13 years'), new \DateTime('-12 years')],
+            ['user_1', 'base_10', '6000', new \DateTime('-4 years'), new \DateTime('-4 years'), new \DateTime('-3 years')],
+            ['user_1', 'base_11', '6500', new \DateTime('-7 years'), new \DateTime('-7 years'), new \DateTime('-6 years')],
+            ['user_1', 'base_12', '7000', new \DateTime('-4 years'), new \DateTime('-4 years'), new \DateTime('-3 years')],
+            ['user_1', 'base_13', '7500', new \DateTime('-12 years'), new \DateTime('-12 years'), new \DateTime('-11 years')],
+            ['user_1', 'base_14', '8000', new \DateTime('-8 years'), new \DateTime('-8 years'), new \DateTime('-7 years')],
+            ['user_1', 'base_15', '8500', new \DateTime('-5 years'), new \DateTime('-5 years'), new \DateTime('-4 years')],
+            ['user_1', 'base_16', '9000', new \DateTime('-14 years'), new \DateTime('-14 years'), new \DateTime('-13 years')],
+            ['user_1', 'base_17', '9500', new \DateTime('-8 years'), new \DateTime('-8 years'), new \DateTime('-7 years')],
+            ['user_1', 'base_18', '10000', new \DateTime('-12 years'), new \DateTime('-12 years'), new \DateTime('-11 years')],
+            ['user_1', 'base_19', '10500', new \DateTime('-2 years'), new \DateTime('-2 years'), new \DateTime('-1 years')],
+            ['user_1', 'base_20', '11000', new \DateTime('-4 years'), new \DateTime('-4 years'), null],
+            ['user_1', 'base_21', '11500', new \DateTime('-10 years'), new \DateTime('-10 years'), new \DateTime('-9 years')],
+            ['user_1', 'base_22', '12000', new \DateTime('-2 years'), new \DateTime('-2 years'), new \DateTime('-1 years')],
+            ['user_1', 'base_23', '12500', new \DateTime('-11 years'), new \DateTime('-11 years'), new \DateTime('-10 years')],
+            ['user_1', 'base_24', '13000', new \DateTime('-9 years'), new \DateTime('-9 years'), new \DateTime('-8 years')],
+            ['user_1', 'base_25', '13500', new \DateTime('-12 years'), new \DateTime('-12 years'), new \DateTime('-11 years')],
+            ['user_1', 'base_26', '14000', new \DateTime('-8 years'), new \DateTime('-8 years'), new \DateTime('-7 years')],
+            ['user_1', 'base_27', '14500', new \DateTime('-9 years'), new \DateTime('-9 years'), new \DateTime('-8 years')],
+            ['user_1', 'base_28', '15000', new \DateTime('-8 years'), new \DateTime('-8 years'), new \DateTime('-7 years')],
+            ['user_1', 'base_29', '15500', new \DateTime('-2 years'), new \DateTime('-2 years'), new \DateTime('-1 years')],
+            ['user_1', 'base_30', '16000', new \DateTime('-5 years'), new \DateTime('-5 years'), null],
+            ['user_1', 'base_31', '16500', new \DateTime('-2 years'), new \DateTime('-2 years'), new \DateTime('-1 years')],
+            ['user_1', 'base_32', '17000', new \DateTime('-12 years'), new \DateTime('-12 years'), new \DateTime('-11 years')],
+            ['user_1', 'base_33', '17500', new \DateTime('-7 years'), new \DateTime('-7 years'), null],
+
+        ];
     }
 }
